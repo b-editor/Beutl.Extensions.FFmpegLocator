@@ -1,0 +1,111 @@
+<UserControl x:Class="Beutl.Extensions.FFmpegLocator.LocateFFmpegPage"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ic="using:FluentIcons.FluentAvalonia"
+             xmlns:local="using:Beutl.Extensions.FFmpegLocator"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             Padding="16"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             x:CompileBindings="True"
+             x:DataType="local:LocateFFmpegPageContext"
+             mc:Ignorable="d">
+    <Grid RowDefinitions="Auto,16,*">
+        <TextBlock Theme="{StaticResource TitleTextBlockStyle}">FFmpegを配置</TextBlock>
+
+        <Grid Grid.Row="2"
+              VerticalAlignment="Stretch"
+              ColumnDefinitions="*,8,*">
+            <Expander Header="インストール" IsExpanded="True">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="ステータス: " />
+                        <TextBlock Text="{Binding StatusMessage.Value}" />
+                    </StackPanel>
+                    <Grid Grid.Row="1"
+                          Margin="0,8"
+                          RowDefinitions="Auto,*">
+                        <TextBlock Text="出力: " />
+                        <ScrollViewer x:Name="outputScrollViewer" Grid.Row="1">
+                            <SelectableTextBlock x:Name="outputTextBlock" Text="{Binding Output.Value}" />
+                        </ScrollViewer>
+                    </Grid>
+                    <!--  IsEnabled="{Binding !FullyInstalled.Value}"  -->
+                    <Button Grid.Row="2"
+                            Height="42"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Bottom"
+                            Classes="accent"
+                            Command="{Binding StartInstall}"
+                            IsVisible="{Binding !IsBusy.Value}">
+                        インストール
+                    </Button>
+                    <Button Grid.Row="2"
+                            Height="42"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Bottom"
+                            Command="{Binding Cancel}"
+                            IsVisible="{Binding IsBusy.Value}">
+                        キャンセル
+                    </Button>
+                </Grid>
+            </Expander>
+            <GridSplitter Grid.Column="1" Background="Transparent" />
+            <ScrollViewer Grid.Column="2">
+                <StackPanel Spacing="4">
+
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="実行ファイル" Theme="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                   Text="{Binding ExecutableInstallDirectory.Value}"
+                                   Theme="{StaticResource CaptionTextBlockStyle}" />
+                    </StackPanel>
+
+                    <ListBoxItem>
+                        <StackPanel VerticalAlignment="Center"
+                                    Orientation="Horizontal"
+                                    Spacing="8">
+                            <ic:SymbolIcon VerticalAlignment="Center"
+                                           IsVisible="{Binding ExecutableInstallDirectory.Value, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                           Symbol="Checkmark" />
+                            <ic:SymbolIcon VerticalAlignment="Center"
+                                           IsVisible="{Binding ExecutableInstallDirectory.Value, Converter={x:Static ObjectConverters.IsNull}}"
+                                           Symbol="Warning" />
+
+                            <TextBlock Text="ffmpeg" />
+                        </StackPanel>
+                    </ListBoxItem>
+
+                    <StackPanel Margin="0,16,0,0"
+                                Orientation="Horizontal"
+                                Spacing="4">
+                        <TextBlock Text="ライブラリ" Theme="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                   Text="{Binding LibraryInstallDirectory.Value}"
+                                   Theme="{StaticResource CaptionTextBlockStyle}" />
+                    </StackPanel>
+
+                    <ListBox ItemsSource="{Binding LibrariesStatus.Value}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ic:SymbolIcon VerticalAlignment="Center"
+                                                   IsVisible="{Binding Installed}"
+                                                   Symbol="Checkmark" />
+                                    <ic:SymbolIcon VerticalAlignment="Center"
+                                                   IsVisible="{Binding !Installed}"
+                                                   Symbol="Warning" />
+
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Beutl.Extensions.FFmpegLocator": {
+      "commandName": "Project"
+    },
+    "Beutl 1.0.0-preview4": {
+      "commandName": "Executable",
+      "executablePath": "F:\\Source\\b-editor\\beutl-builds\\Beutl-win-x64-1.0.0-preview4\\Beutl.exe"
+    }
+  }
+}

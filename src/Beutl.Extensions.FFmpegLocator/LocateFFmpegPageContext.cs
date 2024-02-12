@@ -177,7 +177,8 @@ public class LocateFFmpegPageContext : IPageContext
 
     private void WindowsInstall(string tmp, CancellationToken ct)
     {
-        using var zipArchive = ZipFile.OpenRead(tmp);
+        using (var zipArchive = ZipFile.OpenRead(tmp))
+        {
         var dlls = zipArchive.Entries.Where(e => e.Name.EndsWith(".dll"));
         ct.ThrowIfCancellationRequested();
         foreach (var dll in dlls)
@@ -230,7 +231,7 @@ public class LocateFFmpegPageContext : IPageContext
         {
             Log(LogLevel.Warn, $"ファイルが見つかりません (ffmpeg.exe)");
         }
-
+        }
 
         File.Delete(tmp);
         Log(LogLevel.Info, "Deleted temp file");

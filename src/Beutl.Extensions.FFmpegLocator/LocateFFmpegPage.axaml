@@ -2,9 +2,9 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:ic="using:FluentIcons.FluentAvalonia"
              xmlns:local="using:Beutl.Extensions.FFmpegLocator"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
              Padding="16"
              d:DesignHeight="450"
              d:DesignWidth="800"
@@ -67,12 +67,14 @@
                         <StackPanel VerticalAlignment="Center"
                                     Orientation="Horizontal"
                                     Spacing="8">
-                            <ic:SymbolIcon VerticalAlignment="Center"
-                                           IsVisible="{Binding ExecutableInstallDirectory.Value, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                           Symbol="Checkmark" />
-                            <ic:SymbolIcon VerticalAlignment="Center"
-                                           IsVisible="{Binding ExecutableInstallDirectory.Value, Converter={x:Static ObjectConverters.IsNull}}"
-                                           Symbol="Warning" />
+                            <ui:FontIcon VerticalAlignment="Center"
+                                         FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                         Glyph="&#xE73E;"
+                                         IsVisible="{Binding ExecutableInstallDirectory.Value, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                            <ui:FontIcon VerticalAlignment="Center"
+                                         FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                         Glyph="&#xE7BA;"
+                                         IsVisible="{Binding ExecutableInstallDirectory.Value, Converter={x:Static ObjectConverters.IsNull}}" />
 
                             <TextBlock Text="ffmpeg" />
                         </StackPanel>
@@ -92,12 +94,15 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <ic:SymbolIcon VerticalAlignment="Center"
-                                                   IsVisible="{Binding Installed}"
-                                                   Symbol="Checkmark" />
-                                    <ic:SymbolIcon VerticalAlignment="Center"
-                                                   IsVisible="{Binding !Installed}"
-                                                   Symbol="Warning" />
+                                    <ui:FontIcon VerticalAlignment="Center"
+                                                 FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                                 Glyph="&#xE73E;"
+                                                 IsVisible="{Binding Installed}" />
+                                    <ui:FontIcon VerticalAlignment="Center"
+                                                 FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                                 Glyph="&#xE7BA;"
+                                                 IsVisible="{Binding !Installed}" />
+
 
                                     <TextBlock Text="{Binding Name}" />
                                 </StackPanel>

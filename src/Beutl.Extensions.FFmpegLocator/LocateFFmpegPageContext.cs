@@ -168,6 +168,7 @@ public class LocateFFmpegPageContext : IPageContext
             }
             finally
             {
+                CheckIsInstalled();
                 _cancellationTokenSource.Dispose();
                 _cancellationTokenSource = null;
                 IsBusy.Value = false;
@@ -179,58 +180,58 @@ public class LocateFFmpegPageContext : IPageContext
     {
         using (var zipArchive = ZipFile.OpenRead(tmp))
         {
-        var dlls = zipArchive.Entries.Where(e => e.Name.EndsWith(".dll"));
-        ct.ThrowIfCancellationRequested();
-        foreach (var dll in dlls)
-        {
-            var dst = Path.Combine(s_defaultFFmpegPath, dll.Name);
+            var dlls = zipArchive.Entries.Where(e => e.Name.EndsWith(".dll"));
             ct.ThrowIfCancellationRequested();
+            foreach (var dll in dlls)
+            {
+                var dst = Path.Combine(s_defaultFFmpegPath, dll.Name);
+                ct.ThrowIfCancellationRequested();
 
-            try
-            {
-                if (File.Exists(dst))
+                try
                 {
-                    Log(LogLevel.Info, $"このファイルは既に存在します ({dst})");
+                    if (File.Exists(dst))
+                    {
+                        Log(LogLevel.Info, $"このファイルは既に存在します ({dst})");
+                    }
+                    else
+                    {
+                        dll.ExtractToFile(dst);
+                        Log(LogLevel.Info, $"展開しました ({dll.FullName} -> {dst})");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    dll.ExtractToFile(dst);
-                    Log(LogLevel.Info, $"展開しました ({dll.FullName} -> {dst})");
+                    Log(LogLevel.Warn, $"展開できませんでした ({dst})\n{ex}");
                 }
             }
-            catch (Exception ex)
-            {
-                Log(LogLevel.Warn, $"展開できませんでした ({dst})\n{ex}");
-            }
-        }
 
-        var exe = zipArchive.Entries.FirstOrDefault(e => e.Name == "ffmpeg.exe");
-        if (exe != null)
-        {
-            var exeDst = Path.Combine(s_defaultFFmpegPath, exe.Name);
-            ct.ThrowIfCancellationRequested();
+            var exe = zipArchive.Entries.FirstOrDefault(e => e.Name == "ffmpeg.exe");
+            if (exe != null)
+            {
+                var exeDst = Path.Combine(s_defaultFFmpegPath, exe.Name);
+                ct.ThrowIfCancellationRequested();
 
-            try
-            {
-                if (File.Exists(exeDst))
+                try
                 {
-                    Log(LogLevel.Info, $"このファイルは既に存在します ({exeDst})");
+                    if (File.Exists(exeDst))
+                    {
+                        Log(LogLevel.Info, $"このファイルは既に存在します ({exeDst})");
+                    }
+                    else
+                    {
+                        exe.ExtractToFile(exeDst);
+                        Log(LogLevel.Info, $"展開しました ({exe.FullName} -> {exeDst})");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    exe.ExtractToFile(exeDst);
-                    Log(LogLevel.Info, $"展開しました ({exe.FullName} -> {exeDst})");
+                    Log(LogLevel.Warn, $"展開できませんでした ({exeDst})\n{ex}");
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Log(LogLevel.Warn, $"展開できませんでした ({exeDst})\n{ex}");
+                Log(LogLevel.Warn, $"ファイルが見つかりません (ffmpeg.exe)");
             }
-        }
-        else
-        {
-            Log(LogLevel.Warn, $"ファイルが見つかりません (ffmpeg.exe)");
-        }
         }
 
         File.Delete(tmp);

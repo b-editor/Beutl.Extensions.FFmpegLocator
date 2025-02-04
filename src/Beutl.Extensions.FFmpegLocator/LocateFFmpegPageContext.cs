@@ -156,6 +156,7 @@ public class LocateFFmpegPageContext : IPageContext
                 }
 
                 Log(LogLevel.Information, "完了しました");
+                Log(LogLevel.Information, "このアプリケーションを再起動してください");
             }
             catch (Exception ex)
             {

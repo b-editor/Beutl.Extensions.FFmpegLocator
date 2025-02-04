@@ -9,8 +9,8 @@
     <Title>FFmpeg配置ツール</Title>
     <Description>FFmpegのライブラリ、実行ファイル群を自動で配置します。</Description>
     <PackageTags>ffmpeg;tool</PackageTags>
-    <Version>1.0.2</Version>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <Version>1.0.3</Version>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
     <Authors>b-editor</Authors>
   </PropertyGroup>
 

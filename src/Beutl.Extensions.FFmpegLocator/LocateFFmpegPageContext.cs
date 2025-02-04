@@ -5,9 +5,9 @@ using Beutl.Extensibility;
 
 using FFmpeg.AutoGen;
 
-using Reactive.Bindings;
+using Microsoft.Extensions.Logging;
 
-using Splat;
+using Reactive.Bindings;
 
 namespace Beutl.Extensions.FFmpegLocator;
 
@@ -17,6 +17,7 @@ public class LocateFFmpegPageContext : IPageContext
     private static readonly string s_defaultFFmpegExePath;
     private static readonly Lazy<HttpClient> s_lazyHttpClient = new(() => new HttpClient());
     private CancellationTokenSource? _cancellationTokenSource;
+    private readonly ILogger _logger = Logging.Log.CreateLogger<LocateFFmpegPageContext>();
     private const string WindowsDownload = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2023-11-30-12-55/ffmpeg-n6.0.1-win64-gpl-shared-6.0.zip";
     private const string LinuxDownload = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2023-11-30-12-55/ffmpeg-n6.0.1-linux64-gpl-shared-6.0.tar.xz";
 
@@ -72,6 +73,7 @@ public class LocateFFmpegPageContext : IPageContext
     private void Log(LogLevel logLevel, string message)
     {
         Output.Value += $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff zzz} [{logLevel}] {message}\n";
+        _logger.Log(logLevel, message);
     }
 
     private void Install()
@@ -85,11 +87,11 @@ public class LocateFFmpegPageContext : IPageContext
                 IsBusy.Value = true;
                 Output.Value = "";
                 var http = s_lazyHttpClient.Value;
-                Log(LogLevel.Info, $"LibraryInstalled: {LibraryInstalled.Value}");
-                Log(LogLevel.Info, $"ExecutableInstalled: {ExecutableInstalled.Value}");
-                Log(LogLevel.Info, $"LibraryInstallDirectory: {LibraryInstallDirectory.Value}");
-                Log(LogLevel.Info, $"ExecutableInstallDirectory: {ExecutableInstallDirectory.Value}");
-                Log(LogLevel.Info, "開始");
+                Log(LogLevel.Information, $"LibraryInstalled: {LibraryInstalled.Value}");
+                Log(LogLevel.Information, $"ExecutableInstalled: {ExecutableInstalled.Value}");
+                Log(LogLevel.Information, $"LibraryInstallDirectory: {LibraryInstallDirectory.Value}");
+                Log(LogLevel.Information, $"ExecutableInstallDirectory: {ExecutableInstallDirectory.Value}");
+                Log(LogLevel.Information, "開始");
 
                 if (!(OperatingSystem.IsWindows() || OperatingSystem.IsLinux()))
                 {
@@ -104,8 +106,8 @@ public class LocateFFmpegPageContext : IPageContext
                     tmp = $"{tmp}.tar.xz";
                 }
 
-                Log(LogLevel.Info, $"Temp file ({tmp})");
-                Log(LogLevel.Info, $"Downloading ({url})");
+                Log(LogLevel.Information, $"Temp file ({tmp})");
+                Log(LogLevel.Information, $"Downloading ({url})");
                 using (HttpResponseMessage response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct))
                 using (Stream srcStream = await response.Content.ReadAsStreamAsync(ct))
                 using (var dstStream = File.Create(tmp))
@@ -131,14 +133,14 @@ public class LocateFFmpegPageContext : IPageContext
                             var pp = (int)(p * 100);
                             if (pp - prevProgress >= 10)
                             {
-                                Log(LogLevel.Info, $"{pp}% downloaded");
+                                Log(LogLevel.Information, $"{pp}% downloaded");
                                 prevProgress = pp;
                             }
                         }
                     }
                 }
 
-                Log(LogLevel.Info, $"Download Completed ({url})");
+                Log(LogLevel.Information, $"Download Completed ({url})");
                 if (!Directory.Exists(s_defaultFFmpegPath))
                 {
                     Directory.CreateDirectory(s_defaultFFmpegPath);
@@ -153,13 +155,13 @@ public class LocateFFmpegPageContext : IPageContext
                     await LinuxInstall(tmp, ct);
                 }
 
-                Log(LogLevel.Info, "完了しました");
+                Log(LogLevel.Information, "完了しました");
             }
             catch (Exception ex)
             {
                 if (ex is OperationCanceledException)
                 {
-                    Log(LogLevel.Info, "キャンセルしました");
+                    Log(LogLevel.Information, "キャンセルしました");
                 }
                 else
                 {
@@ -191,17 +193,17 @@ public class LocateFFmpegPageContext : IPageContext
                 {
                     if (File.Exists(dst))
                     {
-                        Log(LogLevel.Info, $"このファイルは既に存在します ({dst})");
+                        Log(LogLevel.Information, $"このファイルは既に存在します ({dst})");
                     }
                     else
                     {
                         dll.ExtractToFile(dst);
-                        Log(LogLevel.Info, $"展開しました ({dll.FullName} -> {dst})");
+                        Log(LogLevel.Information, $"展開しました ({dll.FullName} -> {dst})");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Log(LogLevel.Warn, $"展開できませんでした ({dst})\n{ex}");
+                    Log(LogLevel.Warning, $"展開できませんでした ({dst})\n{ex}");
                 }
             }
 
@@ -215,33 +217,33 @@ public class LocateFFmpegPageContext : IPageContext
                 {
                     if (File.Exists(exeDst))
                     {
-                        Log(LogLevel.Info, $"このファイルは既に存在します ({exeDst})");
+                        Log(LogLevel.Information, $"このファイルは既に存在します ({exeDst})");
                     }
                     else
                     {
                         exe.ExtractToFile(exeDst);
-                        Log(LogLevel.Info, $"展開しました ({exe.FullName} -> {exeDst})");
+                        Log(LogLevel.Information, $"展開しました ({exe.FullName} -> {exeDst})");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Log(LogLevel.Warn, $"展開できませんでした ({exeDst})\n{ex}");
+                    Log(LogLevel.Warning, $"展開できませんでした ({exeDst})\n{ex}");
                 }
             }
             else
             {
-                Log(LogLevel.Warn, $"ファイルが見つかりません (ffmpeg.exe)");
+                Log(LogLevel.Warning, $"ファイルが見つかりません (ffmpeg.exe)");
             }
         }
 
         File.Delete(tmp);
-        Log(LogLevel.Info, "Deleted temp file");
+        Log(LogLevel.Information, "Deleted temp file");
     }
 
     private async Task LinuxInstall(string tmp, CancellationToken ct)
     {
         var tempDir = Path.GetTempPath();
-        Log(LogLevel.Info, $"コマンド実行 'xz -d {tmp}'");
+        Log(LogLevel.Information, $"コマンド実行 'xz -d {tmp}'");
         var xz = Process.Start(new ProcessStartInfo("xz", $"-d {tmp}")
         {
             WorkingDirectory = tempDir
@@ -249,7 +251,7 @@ public class LocateFFmpegPageContext : IPageContext
         await xz.WaitForExitAsync(ct);
         tmp = tmp[..^3];
 
-        Log(LogLevel.Info, $"コマンド実行 'tar -x {tmp}'");
+        Log(LogLevel.Information, $"コマンド実行 'tar -x {tmp}'");
         var tar = Process.Start(new ProcessStartInfo("tar", $"xf {tmp}")
         {
             WorkingDirectory = tempDir
@@ -257,7 +259,7 @@ public class LocateFFmpegPageContext : IPageContext
         await tar.WaitForExitAsync(ct);
 
         File.Delete(tmp);
-        Log(LogLevel.Info, "Deleted temp file");
+        Log(LogLevel.Information, "Deleted temp file");
 
         var soFiles = Directory.GetFiles(Path.Combine(tempDir, "ffmpeg-n6.0.1-linux64-gpl-shared-6.0", "lib"), "*.*", SearchOption.TopDirectoryOnly);
         ct.ThrowIfCancellationRequested();
@@ -270,17 +272,17 @@ public class LocateFFmpegPageContext : IPageContext
             {
                 if (File.Exists(dst))
                 {
-                    Log(LogLevel.Info, $"このファイルは既に存在します ({dst})");
+                    Log(LogLevel.Information, $"このファイルは既に存在します ({dst})");
                 }
                 else
                 {
                     File.Move(soFile, dst);
-                    Log(LogLevel.Info, $"配置しました ({soFile} -> {dst})");
+                    Log(LogLevel.Information, $"配置しました ({soFile} -> {dst})");
                 }
             }
             catch (Exception ex)
             {
-                Log(LogLevel.Warn, $"配置できませんでした ({dst})\n{ex}");
+                Log(LogLevel.Warning, $"配置できませんでした ({dst})\n{ex}");
             }
         }
 
@@ -294,22 +296,22 @@ public class LocateFFmpegPageContext : IPageContext
             {
                 if (File.Exists(exeDst))
                 {
-                    Log(LogLevel.Info, $"このファイルは既に存在します ({exeDst})");
+                    Log(LogLevel.Information, $"このファイルは既に存在します ({exeDst})");
                 }
                 else
                 {
                     File.Move(exeSrc, exeDst);
-                    Log(LogLevel.Info, $"配置しました ({exeSrc} -> {exeDst})");
+                    Log(LogLevel.Information, $"配置しました ({exeSrc} -> {exeDst})");
                 }
             }
             catch (Exception ex)
             {
-                Log(LogLevel.Warn, $"配置できませんでした ({exeDst})\n{ex}");
+                Log(LogLevel.Warning, $"配置できませんでした ({exeDst})\n{ex}");
             }
         }
         else
         {
-            Log(LogLevel.Warn, $"ファイルが見つかりません (ffmpeg.exe)");
+            Log(LogLevel.Warning, $"ファイルが見つかりません (ffmpeg.exe)");
         }
 
         Directory.Delete(Path.Combine(tempDir, "ffmpeg-n6.0.1-linux64-gpl-shared-6.0"), true);

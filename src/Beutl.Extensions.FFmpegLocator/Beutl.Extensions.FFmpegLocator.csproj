@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -9,8 +9,8 @@
     <Title>FFmpeg配置ツール</Title>
     <Description>FFmpegのライブラリ、実行ファイル群を自動で配置します。</Description>
     <PackageTags>ffmpeg;tool</PackageTags>
-    <Version>1.0.1</Version>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <Version>1.0.2</Version>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
     <Authors>b-editor</Authors>
   </PropertyGroup>
 
@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Beutl.Sdk" />
+    <PackageReference Include="Beutl.Extensibility" />
     <PackageReference Include="FFmpeg.AutoGen" />
   </ItemGroup>
 
